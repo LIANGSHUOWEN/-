@@ -1,0 +1,1071 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include<iostream>
+#include<Windows.h>
+#include<WinSock.h>
+#include<mysql.h>
+#include "Class.h"
+#include<string.h>
+#include<fstream>
+#include<set>
+#include<iterator>
+#include<algorithm>
+#include<cstdio>
+
+
+using namespace std;
+#pragma comment(lib,"libmysql.lib")
+#pragma comment(lib,"wsock32.lib")
+int choice;
+MYSQL *mysql = new MYSQL; //mysql连接  
+MYSQL_FIELD *fd;    //字段列数组  
+char field[32][32];    //存字段名二维数组  
+MYSQL_RES *res; //这个结构代表返回行的一个查询结果集  
+MYSQL_ROW column; //一个行数据的类型安全(type-safe)的表示，表示数据行的列  
+char query[1000]; //查询语句  
+
+bool ConnectDatabase();
+//查询1
+bool QueryDatabase1();
+bool QueryDatabase2();
+bool QueryDatabase3();
+bool QueryDatabase4();
+bool QueryDatabase7();
+//查询2
+bool QueryDatabase5();
+bool QueryDatabase6();
+//删除
+bool DeleteData1();
+//插入
+bool InsertDatabase1();
+bool InsertDatabase2();
+bool InsertMath();
+bool InsertEnglish();
+bool InsertChinese();
+bool InsertStudent();
+bool InsertPinde();
+//修改
+bool ModifyData1();
+bool ModifyData2();
+bool ModifyData3();
+bool ModifyMath();
+bool ModifyChinese();
+bool ModifyEnglish();
+
+bool ConnectDatabase()
+{
+	//初始化mysql  
+	mysql_init(mysql);
+	//返回false则连接失败，返回true则连接成功  
+	if (!(mysql_real_connect(mysql, "localhost", "root", "123456", "StuInfCon", 3307, NULL, 0))) //中间分别是主机，用户名，密码，数据库名，端口号（可以写默认0或者3306等），可以先写成参数再传进去  
+	{
+		printf("Error connecting to database:%s\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Connected...\n");
+		return true;
+	}
+	return true;
+}
+bool QueryDatabase2()//学生互评
+{
+	sprintf_s(query, "select * from students order by 学号 asc"); //执行查询语句，这里是查询所有，user是表名，不用加引号，用strcpy也可以  
+	mysql_query(mysql, "set names gbk"); //设置编码格式（SET NAMES GBK也行），否则cmd下中文乱码  
+	//返回0 查询成功，返回1查询失败  
+	if (mysql_query(mysql, query))    //执行SQL语句
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("query success\n");
+	}
+	//获取结果集  
+	if (!(res = mysql_store_result(mysql)))   //获得sql语句结束后返回的结果集  
+	{
+		printf("Couldn't get result from %s\n", mysql_error(mysql));
+		return false;
+	}
+
+	//打印数据行数  
+	printf("number of dataline returned: %d\n", mysql_affected_rows(mysql));
+
+	//获取字段的信息  
+	char *str_field[32];  //定义一个字符串数组存储字段信息  
+	for (int i = 0; i < 3; i++)  //在已知字段数量的情况下获取字段名  
+	{
+		str_field[i] = mysql_fetch_field(res)->name;
+	}
+	//cout << "------|------|-------|-------|--------|-------|--------|-------|-------|---------------|-------------|--------|--------" << endl;
+	for (int i = 0; i < 3; i++)  //打印字段 
+		cout<<str_field[i]<<"\t";
+	printf("\n");
+	//cout << "------|------|-------|-------|--------|-------|--------|-------|-------|---------------|-------------|--------|--------" << endl;
+	//打印获取的数据  
+	while (column = mysql_fetch_row(res))   //在已知字段数量情况下，获取并打印下一行  
+	{
+		//printf("%10s\t%10s\t%10s\t%10s\n", column[0], column[1], column[2], column[3], column[4], column[5], column[6], column[7], column[8], column[9], column[10], column[11], column[12]);  //column是列数组  
+		//cout << "------|------|-------|-------|--------|-------|--------|-------|-------|---------------|-------------|--------|--------" << endl;
+		cout << "|" << column[0] << "\t" << column[1] << "\t" << column[2] << endl;
+		//cout << "------|------|-------|-------|--------|-------|--------|-------|-------|---------------|-------------|--------|--------" << endl;
+	}
+	return true;
+}
+bool QueryDatabase1()//仅查询基础信息
+{
+	sprintf_s(query, "select * from basicinf order by 学号 asc"); //执行查询语句，这里是查询所有，user是表名，不用加引号，用strcpy也可以  
+	mysql_query(mysql, "set names gbk"); //设置编码格式（SET NAMES GBK也行），否则cmd下中文乱码  
+	//返回0 查询成功，返回1查询失败  
+	if (mysql_query(mysql, query))    //执行SQL语句
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("query success\n");
+	}
+	//获取结果集  
+	if (!(res = mysql_store_result(mysql)))   //获得sql语句结束后返回的结果集  
+	{
+		printf("Couldn't get result from %s\n", mysql_error(mysql));
+		return false;
+	}
+
+	//打印数据行数  
+	printf("number of dataline returned: %d\n", mysql_affected_rows(mysql));
+
+	//获取字段的信息  
+	char *str_field[32];  //定义一个字符串数组存储字段信息  
+	for (int i = 0; i < 5; i++)  //在已知字段数量的情况下获取字段名  
+	{
+		str_field[i] = mysql_fetch_field(res)->name;
+	}
+	cout << "-------------|------|-------|-------|--------|-------" << endl;
+	for (int i = 0; i < 5; i++)  //打印字段 
+		cout << str_field[i] << "\t";
+	printf("\n");
+	cout << "-------------|------|-------|-------|--------|-------" << endl;
+	//打印获取的数据  
+	while (column = mysql_fetch_row(res))   //在已知字段数量情况下，获取并打印下一行  
+	{
+		//printf("%10s\t%10s\t%10s\t%10s\n", column[0], column[1], column[2], column[3], column[4], column[5], column[6], column[7], column[8], column[9], column[10], column[11], column[12]);  //column是列数组  
+		
+		cout  << column[0] << "\t" << column[1] << "\t" << column[2] << "\t" << column[3] << "\t" << column[4]  << endl;
+		cout << "-------------|------|-------|-------|--------|-------" << endl;
+	}
+	return true;
+}
+bool QueryDatabase3()//仅查询学习成绩(未排名)
+{
+	sprintf_s(query, "select basicinf.学号,basicinf.姓名,math.数学,chinese.语文,english.英语,(math.数学+chinese.语文+english.英语)/3 as 学习成绩 from basicinf left join math on basicinf.学号=math.学号 left join chinese on basicinf.学号=chinese.学号 left join english on basicinf.学号=english.学号 order by 学习成绩 desc"); //执行查询语句，这里是查询所有，user是表名，不用加引号，用strcpy也可以  
+	mysql_query(mysql, "set names gbk"); //设置编码格式（SET NAMES GBK也行），否则cmd下中文乱码  
+	//返回0 查询成功，返回1查询失败  
+	if (mysql_query(mysql, query))    //执行SQL语句
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("query success\n");
+	}
+	//获取结果集  
+	if (!(res = mysql_store_result(mysql)))   //获得sql语句结束后返回的结果集  
+	{
+		printf("Couldn't get result from %s\n", mysql_error(mysql));
+		return false;
+	}
+
+	//打印数据行数  
+	printf("number of dataline returned: %d\n", mysql_affected_rows(mysql));
+
+	//获取字段的信息  
+	char *str_field[32];  //定义一个字符串数组存储字段信息  
+	for (int i = 0; i < 6; i++)  //在已知字段数量的情况下获取字段名  
+	{
+		str_field[i] = mysql_fetch_field(res)->name;
+	}
+	//cout << "-------------|------|-------|-------|--------|-------" << endl;
+	for (int i = 0; i < 6; i++)  //打印字段 
+		cout << str_field[i] << "\t";
+	    printf("\n");
+	//cout << "-------------|------|-------|-------|--------|-------" << endl;
+	//打印获取的数据  
+	while (column = mysql_fetch_row(res))   //在已知字段数量情况下，获取并打印下一行  
+	{
+		//printf("%10s\t%10s\t%10s\t%10s\n", column[0], column[1], column[2], column[3], column[4], column[5], column[6], column[7], column[8], column[9], column[10], column[11], column[12]);  //column是列数组  
+
+		cout << column[0] << "\t" << column[1] << "\t" << column[2] << "\t" << column[3] << "\t" << column[4] << "\t" << column[5] <<  endl;
+		
+		cout << "-------------|------|-------|-------|--------|-------" << endl;
+	}
+	return true;
+}
+bool QueryDatabase4()//查询全部(未排名)
+{
+	sprintf_s(query, "select basicinf.学号,basicinf.姓名,basicinf.性别,basicinf.家庭住址,basicinf.联系方式,math.数学,chinese.语文,english.英语,pinde.品德成绩,students.学生互评分,math.数学老师评价,chinese.语文老师评价,english.英语老师评价,(math.数学+chinese.语文+english.英语)/3*0.6+(pinde.品德成绩)*0.1+(students.学生互评分)*0.1+(math.数学老师评价+chinese.语文老师评价+english.英语老师评价)/3*0.2 as 总成绩 from basicinf left join students on basicinf.学号=students.学号 left join math on basicinf.学号=math.学号 left join chinese on basicinf.学号=chinese.学号 left join english on basicinf.学号=english.学号 left join pinde on basicinf.学号=pinde.学号 order by 总成绩 desc"); //执行查询语句，这里是查询所有，user是表名，不用加引号，用strcpy也可以  
+	mysql_query(mysql, "set names gbk"); //设置编码格式（SET NAMES GBK也行），否则cmd下中文乱码  
+	//返回0 查询成功，返回1查询失败  
+	if (mysql_query(mysql, query))    //执行SQL语句
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("query success\n");
+	}
+	//获取结果集  
+	if (!(res = mysql_store_result(mysql)))   //获得sql语句结束后返回的结果集  
+	{
+		printf("Couldn't get result from %s\n", mysql_error(mysql));
+		return false;
+	}
+
+	//打印数据行数  
+	printf("number of dataline returned: %d\n", mysql_affected_rows(mysql));
+
+	//获取字段的信息  
+	char *str_field[32];  //定义一个字符串数组存储字段信息  
+	for (int i = 0; i < 14; i++)  //在已知字段数量的情况下获取字段名  
+	{
+		str_field[i] = mysql_fetch_field(res)->name;
+	}
+	//cout << "-------------|------|-------|-------|--------|-------" << endl;
+	for (int i = 0; i < 14; i++)  //打印字段 
+		cout << str_field[i] << "\t";
+	printf("\n");
+	//cout << "-------------|------|-------|-------|--------|-------" << endl;
+	//打印获取的数据  
+	while (column = mysql_fetch_row(res))   //在已知字段数量情况下，获取并打印下一行  
+	{
+		//printf("%10s\t%10s\t%10s\t%10s\n", column[0], column[1], column[2], column[3], column[4], column[5], column[6], column[7], column[8], column[9], column[10], column[11], column[12]);  //column是列数组  
+
+		cout << column[0] << "\t" << column[1] << "\t" << column[2] << "\t" << column[3] << "\t" << column[4] << "\t" << column[5] << "\t" << column[6] << "\t" << column[7] << "\t" << column[8] << "\t" << column[9] << "\t" << column[10] << "\t" << column[11] << "\t" << column[12] << "\t" << column[13] << endl;
+		cout << "-------------|------|-------|-------|--------|-------" << endl;
+	}
+	return true;
+}
+bool QueryDatabase5()//仅查询个人总成绩
+{
+	string number;
+	cout << "请输入你的学号：";
+	cin >> number;
+	const char *sql_num[1] = {number.data()};
+	sprintf_s(query, "select basicinf.学号,basicinf.姓名,math.数学,chinese.语文,english.英语,(math.数学+chinese.语文+english.英语)/3 as 学习成绩 from basicinf left join math on basicinf.学号=math.学号 left join chinese on basicinf.学号=chinese.学号 left join english on basicinf.学号=english.学号 where math.学号=\"%s\" ;", sql_num[0]); //执行查询语句，这里是查询所有，user是表名，不用加引号，用strcpy也可以  
+	mysql_query(mysql, "set names gbk"); //设置编码格式（SET NAMES GBK也行），否则cmd下中文乱码  
+	//返回0 查询成功，返回1查询失败  
+	if (mysql_query(mysql, query))    //执行SQL语句
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("query success\n");
+	}
+	//获取结果集  
+	if (!(res = mysql_store_result(mysql)))   //获得sql语句结束后返回的结果集  
+	{
+		printf("Couldn't get result from %s\n", mysql_error(mysql));
+		return false;
+	}
+
+	//打印数据行数  
+	printf("number of dataline returned: %d\n", mysql_affected_rows(mysql));
+
+	//获取字段的信息  
+	char *str_field[32];  //定义一个字符串数组存储字段信息  
+	for (int i = 0; i < 6; i++)  //在已知字段数量的情况下获取字段名  
+	{
+		str_field[i] = mysql_fetch_field(res)->name;
+	}
+	//cout << "-------------|------|-------|-------|--------|-------" << endl;
+	for (int i = 0; i < 6; i++)  //打印字段 
+		cout << str_field[i] << "\t";
+	printf("\n");
+	//cout << "-------------|------|-------|-------|--------|-------" << endl;
+	//打印获取的数据  
+	while (column = mysql_fetch_row(res))   //在已知字段数量情况下，获取并打印下一行  
+	{
+		//printf("%10s\t%10s\t%10s\t%10s\n", column[0], column[1], column[2], column[3], column[4], column[5], column[6], column[7], column[8], column[9], column[10], column[11], column[12]);  //column是列数组  
+
+		cout << column[0] << "\t" << column[1] << "\t" << column[2] << "\t" << column[3] << "\t" << column[4] << "\t" << column[5] <<endl;
+		cout << "-------------|------|-------|-------|--------|-------" << endl;
+	}
+	return true;
+}
+bool QueryDatabase6()//查询个人所有信息
+{
+	string number;
+	cout << "请输入你的学号：";
+	cin >> number;
+	const char *sql_num[1] = { number.data() };
+	sprintf_s(query, "select basicinf.学号,basicinf.姓名,basicinf.性别,basicinf.家庭住址,basicinf.联系方式,math.数学,chinese.语文,english.英语,pinde.品德成绩,students.学生互评分,math.数学老师评价,chinese.语文老师评价,english.英语老师评价,(math.数学+chinese.语文+english.英语)/3*0.6+(pinde.品德成绩)*0.1+(students.学生互评分)*0.1+(math.数学老师评价+chinese.语文老师评价+english.英语老师评价)/3*0.2 as 总成绩 from basicinf left join students on basicinf.学号=students.学号 left join math on basicinf.学号=math.学号 left join chinese on basicinf.学号=chinese.学号 left join english on basicinf.学号=english.学号 left join pinde on basicinf.学号=pinde.学号 where math.学号=\"%s\" order by 总成绩 desc", sql_num[0]); //执行查询语句，这里是查询所有，user是表名，不用加引号，用strcpy也可以    
+	mysql_query(mysql, "set names gbk"); //设置编码格式（SET NAMES GBK也行），否则cmd下中文乱码  
+	//返回0 查询成功，返回1查询失败  
+	if (mysql_query(mysql, query))    //执行SQL语句
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("query success\n");
+	}
+	//获取结果集  
+	if (!(res = mysql_store_result(mysql)))   //获得sql语句结束后返回的结果集  
+	{
+		printf("Couldn't get result from %s\n", mysql_error(mysql));
+		return false;
+	}
+
+	//打印数据行数  
+	printf("number of dataline returned: %d\n", mysql_affected_rows(mysql));
+
+	//获取字段的信息  
+	char *str_field[32];  //定义一个字符串数组存储字段信息  
+	for (int i = 0; i < 14; i++)  //在已知字段数量的情况下获取字段名  
+	{
+		str_field[i] = mysql_fetch_field(res)->name;
+	}
+	//cout << "-------------|------|-------|-------|--------|-------" << endl;
+	for (int i = 0; i < 14; i++)  //打印字段 
+		cout << str_field[i] << "\t" << "|";
+	printf("\n");
+	//cout << "-------------|------|-------|-------|--------|-------" << endl;
+	//打印获取的数据  
+	while (column = mysql_fetch_row(res))   //在已知字段数量情况下，获取并打印下一行  
+	{
+		//printf("%10s\t%10s\t%10s\t%10s\n", column[0], column[1], column[2], column[3], column[4], column[5], column[6], column[7], column[8], column[9], column[10], column[11], column[12]);  //column是列数组  
+
+		cout << column[0] << "\t" << "|" << column[1] << "\t" << "|" << column[2] << "\t" << "|" << column[3] <<  "\t" << "|" << column[4] << "\t" << "|" << column[5] << "\t" << "|" << column[6] << "\t" << "|" << column[7] << "\t" << "|" << column[8] << "\t" << "|" << column[9] << "\t" << "\t" << "|" << column[10] << "\t" << "\t" << "|" << column[11] << "|" << column[12]  << "|" << column[13] << endl;
+		cout << "-------------|------|-------|-------|--------|-------" << endl;
+	}
+	return true;
+}
+bool QueryDatabase7()
+{
+	sprintf_s(query, "select * from pinde order by 学号 asc"); //执行查询语句，这里是查询所有，user是表名，不用加引号，用strcpy也可以  
+	mysql_query(mysql, "set names gbk"); //设置编码格式（SET NAMES GBK也行），否则cmd下中文乱码  
+	//返回0 查询成功，返回1查询失败  
+	if (mysql_query(mysql, query))    //执行SQL语句
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("query success\n");
+	}
+	//获取结果集  
+	if (!(res = mysql_store_result(mysql)))   //获得sql语句结束后返回的结果集  
+	{
+		printf("Couldn't get result from %s\n", mysql_error(mysql));
+		return false;
+	}
+
+	//打印数据行数  
+	printf("number of dataline returned: %d\n", mysql_affected_rows(mysql));
+
+	//获取字段的信息  
+	char *str_field[32];  //定义一个字符串数组存储字段信息  
+	for (int i = 0; i < 2; i++)  //在已知字段数量的情况下获取字段名  
+	{
+		str_field[i] = mysql_fetch_field(res)->name;
+	}
+	//cout << "------|------|-------|-------|--------|-------|--------|-------|-------|---------------|-------------|--------|--------" << endl;
+	for (int i = 0; i < 2; i++)  //打印字段 
+		cout << str_field[i] << "\t";
+	printf("\n");
+	//cout << "------|------|-------|-------|--------|-------|--------|-------|-------|---------------|-------------|--------|--------" << endl;
+	//打印获取的数据  
+	while (column = mysql_fetch_row(res))   //在已知字段数量情况下，获取并打印下一行  
+	{
+		//printf("%10s\t%10s\t%10s\t%10s\n", column[0], column[1], column[2], column[3], column[4], column[5], column[6], column[7], column[8], column[9], column[10], column[11], column[12]);  //column是列数组  
+		//cout << "------|------|-------|-------|--------|-------|--------|-------|-------|---------------|-------------|--------|--------" << endl;
+		cout << "|" << column[0] << "\t" << column[1] << endl;
+		//cout << "------|------|-------|-------|--------|-------|--------|-------|-------|---------------|-------------|--------|--------" << endl;
+	}
+	return true;
+}
+bool DeleteData1()//仅操作基础个人信息
+{
+	string id;
+	cout << "请输入要删除的学号:" << endl;
+	cin >> id;
+	const char *sql_id[1] = { id.data() };
+	mysql_query(mysql, "set names gbk"); //设置编码格式（SET NAMES GBK也行），否则cmd下中文乱码  
+	sprintf_s(query, "delete from basicinf where 学号=\"%s\";", sql_id[0]);
+	if (mysql_query(mysql, query))        //执行SQL语句  
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Delete success\n");
+		return true;
+	}
+}
+bool InsertDatabase1()//仅插入基础个人信息
+{
+	string number, name, sex, addr, pnum;
+	cout << "学号：";
+	cin >> number;
+	cout << "姓名：";
+	cin >> name;
+	cout << "性别:";
+	cin >> sex;
+	cout << "家庭住址：";
+	cin >> addr;
+	cout << "联系电话:";
+	cin >> pnum;
+	const char *sql_inf[6] = {number.data(),name.data(),sex.data(),addr.data(),pnum.data()};
+	sprintf(query, "insert into basicinf values(\"%s\",\"%s\",\"%s\",\"%s\",\"%s\");", sql_inf[0], sql_inf[1], sql_inf[2], sql_inf[3], sql_inf[4]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+
+	if (mysql_query(mysql, query))
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+	}
+	return true;
+}
+bool InsertDatabase2()//仅插入基础成绩信息
+{
+	string number, name, math, chinese, english, pinde;
+	cout << "学号：";
+	cin >> number;
+	cout << "姓名：";
+	cin >> name;
+	cout << "数学:";
+	cin >> math;
+	cout << "语文：";
+	cin >> chinese;
+	cout << "英语:";
+	cin >> english;
+	cout << "出生日期:";
+	cin >> pinde;
+	const char *sql_inf[6] = { number.data(),name.data(),math.data(),chinese.data(),english.data(),pinde.data() };
+	sprintf(query, "insert into basicinf values(\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\");", sql_inf[0], sql_inf[1], sql_inf[2], sql_inf[3], sql_inf[4], sql_inf[5]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+
+	if (mysql_query(mysql, query))
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+	}
+	return true;
+}
+bool InsertMath()
+{
+	string number, math, pj;
+	cout << "学号：";
+	cin >> number;
+	cout << "数学成绩：";
+	cin >> math;
+	cout << "教师评价分:";
+	cin >> pj;
+	
+	const char *sql_inf[3] = { number.data(),math.data(),pj.data() };
+	sprintf(query, "insert into math values(\"%s\",\"%s\",\"%s\");", sql_inf[0], sql_inf[1], sql_inf[2]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+
+	if (mysql_query(mysql, query))
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+	}
+	return true;
+}
+bool InsertEnglish() {
+	string number, english, pj;
+	cout << "学号：";
+	cin >> number;
+	cout << "英语成绩：";
+	cin >> english;
+	cout << "教师评价分:";
+	cin >> pj;
+
+	const char *sql_inf[3] = { number.data(),english.data(),pj.data() };
+	sprintf(query, "insert into english values(\"%s\",\"%s\",\"%s\");", sql_inf[0], sql_inf[1], sql_inf[2]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+
+	if (mysql_query(mysql, query))
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+	}
+	return true;
+}
+bool InsertChinese() {
+	string number, chinese, pj;
+	cout << "学号：";
+	cin >> number;
+	cout << "语文成绩：";
+	cin >> chinese;
+	cout << "教师评价分:";
+	cin >> pj;
+
+	const char *sql_inf[3] = { number.data(),chinese.data(),pj.data() };
+	sprintf(query, "insert into chinese values(\"%s\",\"%s\",\"%s\");", sql_inf[0], sql_inf[1], sql_inf[2]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+
+	if (mysql_query(mysql, query))
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+	}
+	return true;
+}
+bool InsertPinde() {
+	string number, pinde;
+	cout << "学号：";
+	cin >> number;
+	cout << "品德成绩：";
+	cin >> pinde;
+
+	const char *sql_inf[3] = { number.data(),pinde.data() };
+	sprintf(query, "insert into pinde values(\"%s\",\"%s\");", sql_inf[0], sql_inf[1]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+
+	if (mysql_query(mysql, query))
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+	}
+	return true;
+}
+bool InsertStudent() {
+	string number, name,huping;
+	cout << "学号：";
+	cin >> number;
+	cout << "姓名：";
+	cin >> name;
+	cout << "互评成绩：";
+	cin >> huping;
+
+	const char *sql_inf[3] = { number.data(),name.data(),huping.data() };
+	sprintf(query, "insert into students values(\"%s\",\"%s\",\"%s\");", sql_inf[0], sql_inf[1], sql_inf[2]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+
+	if (mysql_query(mysql, query))
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+	}
+	return true;
+}
+bool ModifyData1()//仅修改基础个人信息
+{
+	string inf[4];
+	cout << "限制条件（学号=）:";
+	cin >> inf[2];
+	inf[2] = "where " + inf[2];
+	cout << "请输入修改字段(学号/姓名/性别/家庭住址/联系方式):";
+	cin >> inf[0];
+	cout << "请输入修改后的信息：";
+	cin >> inf[1];
+	const char *sql_infm[3] = { inf[0].data(),inf[1].data(),inf[2].data()};
+	sprintf(query, "update basicinf set %s=%s %s;", sql_infm[0], sql_infm[1], sql_infm[2]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+	if (mysql_query(mysql, query))        //执行SQL语句  
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+		return true;
+	}
+}
+bool ModifyData2()//互评成绩
+{
+	string inf[4];
+	cout << "限制条件（学号=）:";
+	cin >> inf[2];
+	inf[2] = "where " + inf[2];
+	cout << "请输入修改字段(学生互评分):";
+	cin >> inf[0];
+	cout << "请输入修改后的信息：";
+	cin >> inf[1];
+	const char *sql_infm[3] = { inf[0].data(),inf[1].data(),inf[2].data() };
+	sprintf(query, "update students set %s=%s %s;", sql_infm[0], sql_infm[1], sql_infm[2]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+	if (mysql_query(mysql, query))        //执行SQL语句  
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+		return true;
+	}
+}
+bool ModifyData3()//品德成绩
+{
+	string inf[4];
+	cout << "限制条件（学号=）:";
+	cin >> inf[2];
+	inf[2] = "where " + inf[2];
+	cout << "请输入修改字段(品德成绩):";
+	cin >> inf[0];
+	cout << "请输入修改后的信息：";
+	cin >> inf[1];
+	const char *sql_infm[3] = { inf[0].data(),inf[1].data(),inf[2].data() };
+	sprintf(query, "update pinde set %s=%s %s;", sql_infm[0], sql_infm[1], sql_infm[2]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+	if (mysql_query(mysql, query))        //执行SQL语句  
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+		return true;
+	}
+}
+bool ModifyMath()//数学
+{
+	string inf[4];
+	cout << "限制条件（学号=）:";
+	cin >> inf[2];
+	inf[2] = "where " + inf[2];
+	cout << "请输入修改字段(数学/数学老师评价):";
+	cin >> inf[0];
+	cout << "请输入修改后的信息：";
+	cin >> inf[1];
+	const char *sql_infm[3] = { inf[0].data(),inf[1].data(),inf[2].data() };
+	sprintf(query, "update math set %s=%s %s;", sql_infm[0], sql_infm[1], sql_infm[2]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+	if (mysql_query(mysql, query))        //执行SQL语句  
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+		return true;
+	}
+}
+bool ModifyChinese()//语文
+{
+	string inf[4];
+	cout << "限制条件（学号=）:";
+	cin >> inf[2];
+	inf[2] = "where " + inf[2];
+	cout << "请输入修改字段(语文/语文老师评价):";
+	cin >> inf[0];
+	cout << "请输入修改后的信息：";
+	cin >> inf[1];
+	const char *sql_infm[3] = { inf[0].data(),inf[1].data(),inf[2].data() };
+	sprintf(query, "update chinese set %s=%s %s;", sql_infm[0], sql_infm[1], sql_infm[2]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+	if (mysql_query(mysql, query))        //执行SQL语句  
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+		return true;
+	}
+}
+bool ModifyEnglish()//英语
+{
+	string inf[4];
+	cout << "限制条件（学号=）:";
+	cin >> inf[2];
+	inf[2] = "where " + inf[2];
+	cout << "请输入修改字段(英语/英语老师评价):";
+	cin >> inf[0];
+	cout << "请输入修改后的信息：";
+	cin >> inf[1];
+	const char *sql_infm[3] = { inf[0].data(),inf[1].data(),inf[2].data() };
+	sprintf(query, "update english set %s=%s %s;", sql_infm[0], sql_infm[1], sql_infm[2]);
+	mysql_query(mysql, "SET NAMES 'GBK'");
+	if (mysql_query(mysql, query))        //执行SQL语句  
+	{
+		printf("Query failed (%s)\n", mysql_error(mysql));
+		return false;
+	}
+	else
+	{
+		printf("Insert success\n");
+		return true;
+	}
+}
+class CDBMysql
+{
+private:
+	MYSQL *mysql = new MYSQL; //mysql连接  
+	MYSQL_FIELD *fd;    //字段列数组  
+	char field[32][32];    //存字段名二维数组  
+	MYSQL_RES *res; //这个结构代表返回行的一个查询结果集  
+	MYSQL_ROW column; //一个行数据的类型安全(type-safe)的表示，表示数据行的列  
+	char query[150]; //查询语句  
+public:
+	string  number;//学号
+	string  name;//名字
+	char  sex;//性别
+	string  addr;//家庭住址
+	string  pnum;//联系电话
+	string  birth;
+	int ch = 1;
+	CDBMysql() { readfile(); }
+	
+	void display();//管理员
+	void display1();//教师
+	void display2();//学生
+	void display3();//修改
+	void display4();//插入
+	void display5();//删除
+	void display6();
+	void display7();
+	void run();
+	void readfile();
+};
+
+
+
+
+void CDBMysql::display()//管理员模式
+{
+	system("cls");
+	cout << "┏--------------------------------------------------------------------------------┓" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                ---管理员下午好---                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                1-添加学生基础信息                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                2-添加学生互评成绩                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                3-添加学生品德成绩                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                4-删除单个学生信息                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                  5-显示学生信息                                ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                  6-修改学生信息                                ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                    0-退    出                                  ┃" << endl;
+	cout << "┗--------------------------------------------------------------------------------┛" << endl;
+}
+void CDBMysql::display1()//教师模式
+{
+	system("cls");
+	cout << "┏--------------------------------------------------------------------------------┓" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                               ---老师下午好---                                 ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                1-添加学生成绩                                  ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                2-修改学生成绩                                  ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                  0-退    出                                    ┃" << endl;
+	cout << "┗--------------------------------------------------------------------------------┛" << endl;
+}
+void CDBMysql::display2()//学生模式
+{
+	system("cls");
+	cout << "┏--------------------------------------------------------------------------------┓" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                               ---同学下午好---                                 ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                1-纯成绩查询                                    ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                2-综合测评查询                                  ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                0-退    出                                      ┃" << endl;
+	cout << "┗--------------------------------------------------------------------------------┛" << endl;
+}
+void CDBMysql::display3()//修改模式
+{
+	system("cls");
+	cout << "┏--------------------------------------------------------------------------------┓" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                            ---请选择你要修改的项目---                          ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                1-修改学生基础信息                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                2-修改学生互评成绩                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                3-修改学生品德成绩                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                  0-退    出                                    ┃" << endl;
+	cout << "┗--------------------------------------------------------------------------------┛" << endl;
+}
+void CDBMysql::display4()//插入模式
+{
+	system("cls");
+	cout << "┏--------------------------------------------------------------------------------┓" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                               ---请选择要插入的信息---                         ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                   1-学生基础信息                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                   2-学生互评成绩                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                   3-学生品德成绩                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                   4-学生学习成绩                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                   5-综合测评成绩                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                      0-退出                                    ┃" << endl;
+	cout << "┗--------------------------------------------------------------------------------┛" << endl;
+}
+void CDBMysql::display5()//删除模式
+{
+	system("cls");
+	cout << "┏--------------------------------------------------------------------------------┓" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                            ---请选择你要删除的项目---                          ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                1-修改学生基础信息                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                2-修改学生互评成绩                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                3-修改学生品德成绩                              ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                      0-退出                                    ┃" << endl;
+	cout << "┗--------------------------------------------------------------------------------┛" << endl;
+}
+void CDBMysql::display6()
+{
+	system("cls");
+	cout << "┏--------------------------------------------------------------------------------┓" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                 ---请选择科目---                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                      1-数学                                    ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                      2-语文                                    ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                      3-英语                                    ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                      0-退出                                    ┃" << endl;
+	cout << "┗--------------------------------------------------------------------------------┛" << endl;
+}
+void CDBMysql::display7()//显示模式
+{
+	system("cls");
+	cout << "┏--------------------------------------------------------------------------------┓" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                            ---请选择要查看的成绩信息---                        ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                   1-学生基础信息                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                   2-学生互评成绩                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                   3-学生品德成绩                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                   4-学生学习成绩                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                   5-综合测评成绩                               ┃" << endl;
+	cout << "┃                                                                                ┃" << endl;
+	cout << "┃                                      0-退出                                    ┃" << endl;
+	cout << "┗--------------------------------------------------------------------------------┛" << endl;
+}
+void CDBMysql::run()
+{
+	int choice1;
+	string id;
+	StudnetInfo * stuInfo = 0;
+	if (choice == 1)//管理员模式
+	{
+		do
+		{
+			display();
+			cout << "您要做什么:";
+			cin >> choice1;
+			switch (choice1)
+			{
+			case 0:break;
+			case 1: ConnectDatabase();InsertDatabase1(); system("pause"); break;
+		    case 2: ConnectDatabase();InsertStudent(); system("pause"); break;
+			case 3: ConnectDatabase();InsertPinde(); system("pause"); break;
+			case 4: ConnectDatabase();DeleteData1();system("pause"); break;
+			case 5: 
+			{ 
+				int choice2;
+				display7();
+				cout << "您要做什么:";
+				cin >> choice2;
+				if (choice2 == 0) break;
+				if (choice2 == 1) { ConnectDatabase();QueryDatabase1();system("pause"); break; }
+				if (choice2 == 2) { ConnectDatabase();QueryDatabase2();system("pause"); break; }
+				if (choice2 == 3) { ConnectDatabase();QueryDatabase7();system("pause"); break; }
+				if (choice2 == 4) { ConnectDatabase();QueryDatabase3();system("pause"); break; }
+				if (choice2 == 5) { ConnectDatabase();QueryDatabase4();system("pause"); break; }
+			} system("pause"); break;
+			case 6:
+			{
+				int choice2;
+				display3();
+				cout << "您要做什么:";
+				cin >> choice2;
+				if (choice2 == 0) break;
+				if (choice2 == 1) { ConnectDatabase();ModifyData1();system("pause"); break; }
+				if (choice2 == 2) { ConnectDatabase();ModifyData2();system("pause"); break; }
+				if (choice2 == 3) { ConnectDatabase();ModifyData3();system("pause"); break; }
+			}system("pause"); break;
+			} 
+		} while (choice1);
+	}
+	if (choice == 2)//教师模式
+	{
+		do
+		{
+			display1();
+			cout << "您要做什么:";
+			cin >> choice1;
+			switch (choice1)
+			{
+			case 0:break;
+			case 1:
+			{
+				int choice2;
+				display6();
+				cout << "您要做什么:";
+				cin >> choice2;
+				if (choice2 == 0) break;
+				if (choice2 == 1) { ConnectDatabase();InsertMath();system("pause"); break; }
+				if (choice2 == 2) { ConnectDatabase();InsertChinese();system("pause"); break; }
+				if (choice2 == 3) { ConnectDatabase();InsertEnglish();system("pause"); break; }
+			}system("pause"); break;
+			case 2: 
+			{
+				int choice2;
+				display6();
+				cout << "您要做什么:";
+				cin >> choice2;
+				if (choice2 == 0) break;
+				if (choice2 == 1) { ConnectDatabase();ModifyMath();system("pause"); break; }
+				if (choice2 == 2) { ConnectDatabase();ModifyChinese();system("pause"); break; }
+				if (choice2 == 3) { ConnectDatabase();ModifyEnglish();system("pause"); break; }
+			}system("pause"); break;
+			
+			}
+		} while (choice1);
+	}
+	if (choice == 3)//学生模式
+	{
+		do
+		{
+			display2();
+			cout << "您要做什么:";
+			cin >> choice1;
+			switch (choice1)
+			{
+			case 0:break;
+			case 1:QueryDatabase5();system("pause"); break;
+			case 2:QueryDatabase6();system("pause"); break;
+			}
+		} while (choice1);
+	}
+}
+void CDBMysql::readfile()
+{
+	string key;
+	do
+	{
+		system("cls");
+		cout << "┏--------------------------------------------------------------------------------┓" << endl;
+		cout << "┃                                                                                ┃" << endl;
+		cout << "┃                               ---学生综合测评系统---                           ┃" << endl;
+		cout << "┃                                                                                ┃" << endl;
+		cout << "┃                                                                                ┃" << endl;
+		cout << "┃                                    1-管理员登录                                ┃" << endl;
+		cout << "┃                                                                                ┃" << endl;
+		cout << "┃                                    2-教师登录                                  ┃" << endl;
+		cout << "┃                                                                                ┃" << endl;
+		cout << "┃                                    3-学生登录                                  ┃" << endl;
+		cout << "┃                                                                                ┃" << endl;
+		cout << "┃                                      0-退出                                    ┃" << endl;
+		cout << "┗--------------------------------------------------------------------------------┛" << endl;
+		cout << "请选择你的身份:";
+		cin >> choice;
+		while (choice != 1 && choice != 2 && choice != 3 && choice != 0)
+		{
+			cout << "错误，请重新输入:";
+			cin >> choice;
+		}
+		switch (choice)
+		{
+		case 0:break;
+		case 1: cout << "请输入管理员登录密码" << endl;
+			cin >> key;
+			if (key == "123456")
+			{
+				run(); system("pause");
+			}
+			else
+				cout << "密码错误" << endl;
+			break;
+		case 2:cout << "请输入教师登录密码" << endl;
+			cin >> key;
+			if (key == "123456")
+			{
+				run(); system("pause");
+			}
+			else
+				cout << "密码错误" << endl;
+			break;
+		case 3:run(); system("pause"); break;
+		}
+	} while (choice);
+}
+
+int main()
+{
+	ConnectDatabase();
+	CDBMysql inter;
+	system("pause");
+	return 0;
+}
