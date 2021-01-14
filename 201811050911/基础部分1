@@ -1,0 +1,62 @@
+#include <stdio.h>
+int main()
+{
+	int a=0,b=0;
+	int c;
+	int fun(int m,int n);
+	scanf("%d %d",&a,&b);
+	c=fun(a,b);
+	printf("%d",c);
+}
+ int fun(int m,int n)
+ {
+ 	int m_shi,m_ge,n_shi,n_ge;
+	m_shi=(m-m%10)/10;m_ge=m%10;n_shi=(n-n%10)/10;n_ge=n%10;
+ 	int temp_c;
+ 	temp_c=m_shi*10+m_ge*1000+n_shi*1+n_ge*100;
+ 	return temp_c;
+ }
+ //引用实现：
+#include <iostream>
+#include <sstream>
+using namespace std;
+int main()
+{
+	int fun(int &m,int &n);
+	int a,b;
+	int c;
+	cin>>a>>b;
+	c=fun(a,b);
+	cout<<"c="<<c<<endl;
+	getchar();
+	return 0;
+}
+int fun(int &m,int &n)
+ {
+ 	int m_shi,m_ge,n_shi,n_ge;
+	m_shi=(m-m%10)/10;m_ge=m%10;n_shi=(n-n%10)/10;n_ge=n%10;
+ 	int temp_c;
+ 	temp_c=m_shi*10+m_ge*1000+n_shi*1+n_ge*100;
+ }
+//指针实现：
+#include <iostream>
+#include <sstream>
+using namespace std;
+int main()
+{
+	int fun(int *m,int *n);
+	int a,b;
+	int c;
+	cin>>a>>b;
+	c=fun(&a,&b);
+	cout<<"c="<<c<<endl;
+	getchar();
+	return 0;
+}
+int fun(int *m,int *n)
+ {
+ 	int m_shi,m_ge,n_shi,n_ge;
+	m_shi=(*m-*m%10)/10;m_ge=*m%10;n_shi=(*n-*n%10)/10;n_ge=*n%10;
+ 	int temp_c;
+ 	temp_c=m_shi*10+m_ge*1000+n_shi*1+n_ge*100;
+ }
