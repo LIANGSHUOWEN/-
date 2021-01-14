@@ -1,0 +1,48 @@
+include<iostream>
+using namespace std;
+class vehicle
+{
+protected:
+int wheels;
+float weight;
+};
+class car:private vehicle
+{
+public:
+    void get_date1()
+    {
+     cout<<"输入小车的车轮数，车重和载人数：";
+     cin>>wheels>>weight>>passenger_load;
+}
+void display_date1()
+{
+cout<<"小车的车轮数："<<wheels<<"   车重："<<weight<<"   载人数："<<passenger_load<<endl;
+}
+private:
+int passenger_load;
+};
+class truck:private vehicle
+{
+private:
+int passenger_load;
+float payload;
+public:
+    void get_date1()
+    {
+     cout<<"输入大车的车轮数，车重,载人数和载重量：";
+     cin>>wheels>>weight>>passenger_load>>payload;
+}
+void display_date1()
+{
+cout<<"大车的车轮数："<<wheels<<"   车重："<<weight<<"   载人数："<<passenger_load<<"   载重量："<<payload<<endl;
+}
+};
+main()
+{
+car c1;
+truck t1;
+c1.get_date1();
+t1.get_date1();
+c1.display_date1();
+t1.display_date1();
+}
