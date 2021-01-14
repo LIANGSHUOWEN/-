@@ -1,0 +1,102 @@
+//数组实现：
+ #include<bits/stdc++.h>
+ using namespace std;
+ const int N = 1000; //共有N个猴子
+ int a[N];   //用数组和%操作模拟圈
+ int index = 0;  //下标index
+ int i = 1;  //用来对3计数 
+ int counter;    //记录每次剩下的猴子个数
+ int main()
+ {
+     int num;    //num是猴子的数量
+     int n; 
+     cout<<"请输入猴子数和报数："<<endl;
+     cin >> num>>n;
+     counter = num;
+     while(counter > 1)
+     {
+         if(a[index] != -1)  //当下标为index的猴子还在圈内时         
+		 {
+             if(i == n)
+             {
+                 a[index] = -1;  //将数到3的猴子退出圈子 ，将下标置为-1
+                counter--;  //剩下的猴子总个数-1
+             }
+             i++;
+             if(i > n)   //i=4时候，i要回到1
+             {
+                 i = i % n;
+             }
+         }
+         index++;
+         if(index >= num)    //当下标达到了猴子总数时，要回到开头
+         {
+             index = index % num;
+         }
+     }
+     for(int i = 0; i < num; i++)
+     {
+        if(a[i] != -1)
+        {
+           cout <<"猴子大王是："<< i + 1; //数组下标是从0开始的，要+1      
+		     }
+     }
+     return 0;
+ }
+//链表实现：
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node
+{
+	int data;
+	struct node*next;
+}linklist;
+void create(int n,int m)
+{
+	linklist *head,*p,*s,*q;
+	int i,total;
+	head=(linklist*)malloc(sizeof(linklist));
+	p=head;
+	p->data=1;
+	p->next=p;
+	for(i=2;i<=m;i++)
+	{
+		s=(linklist*)malloc(sizeof(linklist));
+		s->data=i;
+		s->next=p->next;
+		p->next=s;
+		p=p->next;
+	}
+	p=head;
+	total=m;
+	q=head;
+	while(total!=1)
+	{
+		for(i=1;i<n;i++)
+		{
+			p=p->next;
+		}
+		//printf("%d\n",p->data);
+		while(q->next!=p)
+		{
+			q=q->next;
+		}
+		q->next=p->next;
+		s=p;
+		p=p->next;
+		free(s);
+		total--;
+	}
+	int king;
+	king=p->data;
+	free(p);
+	printf("king is %d\n",king);
+}
+int main()
+{
+	int m,n;
+	printf("请输入猴子个数m和报数n：");
+	scanf("%d %d",&m,&n);
+	create(n,m);
+	return 0;
+}
