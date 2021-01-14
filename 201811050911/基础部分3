@@ -1,0 +1,31 @@
+#include<iostream>
+#include<algorithm> 
+using namespace std;
+struct Student
+{
+int id,x,y,z;//分别表示学号、语数英成绩
+}a[303];
+int n;
+bool cmp(Student a,Student b)
+{
+if (a.x+a.y+a.z!=b.x+b.y+b.z)//如果总分不一样
+        return a.x+a.y+a.z>b.x+b.y+b.z;//按总分从高到低排序
+    if (a.x!=b.x)//如果语文成绩不一样
+        return a.x>b.x;//按语文成绩从高到低排序
+    //如果总分和语文成绩都相同，按照学号从小到大排序
+    return a.id<b.id;
+}
+int main()
+{
+    cin>>n;
+    for(int i=1;i<=n;i++)
+    {
+     a[i].id=i;//首先为第i位同学赋予学号i
+        cin>>a[i].x>>a[i].y>>a[i].z;//然后输入其语数英成绩
+}
+    sort(a+1,a+1+n,cmp);
+    cout<<"前五名学生的学号和总分如下："<<endl; 
+    for(int i=1;i<=5;i++)//输出前5名的学号和总分
+        cout<<a[i].id<<" "<<a[i].x+a[i].y+a[i].z<<endl;
+    return 0;
+}
